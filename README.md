@@ -3,7 +3,7 @@
 Salesforce now allows to automate package upload process using tooling API's in two simple steps.
 
 Step 1 : Establish connection with salesforce org
-Step 2 : Start package upload and poll for upload status.
+Step 2 : Trigger package upload and poll for upload status.
 
 Before performing above steps, make sure you have added required JAR's to you java build path.
 
