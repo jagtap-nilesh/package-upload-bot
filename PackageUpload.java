@@ -23,7 +23,7 @@ public class PackageUpload {
 	static private final String packagePostInstallUrl = "https://salesforce.com";	//Link to post install notes
 	// Leave blank or null for no password
 	static private final String packagePassword = "";
-	static private final String baseUrl = "http://ap2.salesforce.com/";
+	static private final String baseUrl = "http://<instanse>.salesforce.com/";
 	
 	static PackageUploadRequest packageUploadRequestObj = new PackageUploadRequest();
 	static SoapConnection connection;
@@ -39,17 +39,14 @@ public class PackageUpload {
 
 			ConnectorConfig partnerConfig = new ConnectorConfig();
 			partnerConfig.setManualLogin(true);
-			PartnerConnection partnerConnection = com.sforce.soap.partner.Connector
-					.newConnection(partnerConfig);
+			PartnerConnection partnerConnection = com.sforce.soap.partner.Connector.newConnection(partnerConfig);
 			LoginResult lr = partnerConnection.login(USERNAME, PASSWORD);
 
 			ConnectorConfig toolingConfig = new ConnectorConfig();
 			toolingConfig.setSessionId(lr.getSessionId());
-			toolingConfig.setServiceEndpoint(lr.getServerUrl()
-					.replace('u', 'T'));
+			toolingConfig.setServiceEndpoint(lr.getServerUrl().replace('u', 'T'));
 
-			connection = com.sforce.soap.tooling.Connector
-					.newConnection(toolingConfig);
+			connection = com.sforce.soap.tooling.Connector.newConnection(toolingConfig);
 			
 			uploadPackage();
 			uploadStatusPolling();
@@ -80,11 +77,9 @@ public class PackageUpload {
 			// The save result contains the ID of the created request. Save it
 			// in the local request.
 			packageUploadRequestObj.setId(saveResults[0].getId());
-			System.out.println("PackagePushRequest created, ID: "
-					+ saveResults[0].getId());
+			System.out.println("PackagePushRequest created, ID: "+ saveResults[0].getId());
 		} else {
-			for (com.sforce.soap.tooling.Error error : saveResults[0]
-					.getErrors()) {
+			for (com.sforce.soap.tooling.Error error : saveResults[0].getErrors()) {
 				System.out.println("Exception :: " + error.getMessage());
 			}
 		}
@@ -92,64 +87,42 @@ public class PackageUpload {
 
 	public static void uploadStatusPolling() throws ConnectionException {
 		// Finds the status of the PackageUploadRequest for a given Id
-		String query = String
-				.format("Select status,MetadataPackageVersionId from PackageUploadRequest where Id = '%s'",
+		String query = String.format("Select status,MetadataPackageVersionId from PackageUploadRequest where Id = '%s'",
 						packageUploadRequestObj.getId());
 
 		boolean toggle = false;
 		boolean done = false;
 		while (true) {
 			QueryResult queryResult = connection.query(query);
-
-			PackageUploadRequest updatedPackageUploadRequest = (PackageUploadRequest) queryResult
-					.getRecords()[0];
+			PackageUploadRequest updatedPackageUploadRequest = (PackageUploadRequest) queryResult.getRecords()[0];
 
 			String status = updatedPackageUploadRequest.getStatus();
 			switch (status) {
 			case "Success":
-				System.out.println(String.format("Package upload %s completed",
-						packageUploadRequestObj.getId()));
-				System.out
-						.println(String
-								.format("Package install url: %s/packaging/installPackage.apexp?p0=%s",
-										baseUrl, updatedPackageUploadRequest
-												.getMetadataPackageVersionId()));
+				System.out.println(String.format("Package upload %s completed",	packageUploadRequestObj.getId()));
+				System.out.println(String.format("Package install url: %s/packaging/installPackage.apexp?p0=%s",baseUrl, updatedPackageUploadRequest.getMetadataPackageVersionId()));
 				done = true;
 				break;
 			case "Error":
-				PackageUploadErrors errors = updatedPackageUploadRequest
-						.getErrors();
+				PackageUploadErrors errors = updatedPackageUploadRequest.getErrors();
 
 				if (errors.getErrors().length == 0) {
-					System.out
-							.println(String
-									.format("%s: For upload of package %s, no further information available",
-											updatedPackageUploadRequest
-													.getStatus(),
-											packageUploadRequestObj.getId()));
+					System.out.println(String.format("%s: For upload of package %s, no further information available",updatedPackageUploadRequest.getStatus(),packageUploadRequestObj.getId()));
 				} else {
-					System.out.println(String.format(
-							"%s: For upload of package %s",
-							updatedPackageUploadRequest.getStatus(),
-							packageUploadRequestObj.getId()));
+					System.out.println(String.format("%s: For upload of package %s",updatedPackageUploadRequest.getStatus(),packageUploadRequestObj.getId()));
 					for (PackageUploadError error : errors.getErrors()) {
-						System.out.println("Error detail: "
-								+ error.getMessage());
+						System.out.println("Error detail: "	+ error.getMessage());
 					}
 				}
-				// assertTrue("Upload failure occurred", false);
 				break;
 			case "InProgress":
 				if (!toggle) {
-					System.out.println(String.format(
-							"Package upload %s started",
-							packageUploadRequestObj.getId()));
+					System.out.println(String.format("Package upload %s started",packageUploadRequestObj.getId()));
 					toggle = true;
 				}
 				break;
 			case "Unknown":
-				System.out.println("Unexpected package upload status: "
-						+ updatedPackageUploadRequest.getStatus());
+				System.out.println("Unexpected package upload status: "+ updatedPackageUploadRequest.getStatus());
 			}
 
 			if (done)
