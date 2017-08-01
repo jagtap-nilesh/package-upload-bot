@@ -4,13 +4,12 @@
 Salesforce now allows to automate package upload process using tooling API's in two simple steps.
 
 Step 1 : Establish connection with salesforce org
-
 Step 2 : Trigger package upload and poll for upload status.
-
 
 Before performing above steps, make sure you have added required JAR's to you java build path.
 
 Step 1: Download the Web Service WSDL
+
 •	Log in to your Salesforce account. Make sure you are a system administrator or have "Modify All Data permissions" user.
 
 •	Click Your Name > Setup > Develop > API to display the WSDL download page.
