@@ -100,16 +100,19 @@ public class PackageUpload {
 			switch (status) {
 			case "Success":
 				System.out.println(String.format("Package upload %s completed",	packageUploadRequestObj.getId()));
-				System.out.println(String.format("Package install url: %s/packaging/installPackage.apexp?p0=%s",baseUrl, updatedPackageUploadRequest.getMetadataPackageVersionId()));
+				System.out.println(String.format("Package install url: %s/packaging/installPackage.apexp?p0=%s",
+									baseUrl, updatedPackageUploadRequest.getMetadataPackageVersionId()));
 				done = true;
 				break;
 			case "Error":
 				PackageUploadErrors errors = updatedPackageUploadRequest.getErrors();
 
 				if (errors.getErrors().length == 0) {
-					System.out.println(String.format("%s: For upload of package %s, no further information available",updatedPackageUploadRequest.getStatus(),packageUploadRequestObj.getId()));
+					System.out.println(String.format("%s: For upload of package %s, no further information available",
+										updatedPackageUploadRequest.getStatus(),packageUploadRequestObj.getId()));
 				} else {
-					System.out.println(String.format("%s: For upload of package %s",updatedPackageUploadRequest.getStatus(),packageUploadRequestObj.getId()));
+					System.out.println(String.format("%s: For upload of package %s",
+										updatedPackageUploadRequest.getStatus(),packageUploadRequestObj.getId()));
 					for (PackageUploadError error : errors.getErrors()) {
 						System.out.println("Error detail: "	+ error.getMessage());
 					}
